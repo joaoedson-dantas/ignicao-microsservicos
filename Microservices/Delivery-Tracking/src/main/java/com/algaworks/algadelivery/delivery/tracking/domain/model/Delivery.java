@@ -38,7 +38,7 @@ public class Delivery {
     private BigDecimal courierPayout;
     private BigDecimal totalCost;
 
-    // Invariant que precisa se protegida.
+    // Invariant que precisa ser protegida.
     private Integer totalItems;
 
     // Static Factories
@@ -113,18 +113,18 @@ public class Delivery {
         // Regras de negócio
         verifyIfCanBePlaced();
 
-        this.setStatus(DeliveryStatus.WAITING_FOR_COURIER);
+        this.changeStatusTo(DeliveryStatus.WAITING_FOR_COURIER);
         this.setPlacedAt(OffsetDateTime.now());
     }
 
     public void pickUp(UUID courierId) {
         this.setCourierId(courierId);
-        this.setStatus(DeliveryStatus.IN_TRANSIT);
+        this.changeStatusTo(DeliveryStatus.IN_TRANSIT);
         this.setAssignedAt(OffsetDateTime.now());
     }
 
     public void markAsDelivered() {
-        this.setStatus(DeliveryStatus.DELIVERY);
+        this.changeStatusTo(DeliveryStatus.DELIVERY);
         this.setFulfilledAt(OffsetDateTime.now());
     }
 
@@ -156,10 +156,21 @@ public class Delivery {
         }
     }
 
+    private void changeStatusTo(DeliveryStatus newStatus) {
+        if (newStatus != null && this.getStatus().canNotChangeTo(newStatus)) {
+            throw new DomainException(
+                    "Invalid status transition from " + this.getStatus() +
+                    " to " + newStatus
+            );
+        }
+        this.setStatus(newStatus);
+    }
+
     @Getter
     @AllArgsConstructor
     @Builder
     // Classe servirá apenas para passagem de parâmetro
+    // Inner class
     public static class PreparationDetails {
         private ContactPoint sender;
         private ContactPoint recipient;
