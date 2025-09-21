@@ -36,6 +36,7 @@ public class Delivery {
     private BigDecimal courierPayout;
     private BigDecimal totalCost;
 
+    // Invariant que precisa se protegida.
     private Integer totalItems;
 
     // Static Factories
@@ -56,11 +57,47 @@ public class Delivery {
         return delivery;
     }
 
+    // DDD -> Apenas o AggregateRoot pode modificar a lista de itens.
+    // A ideia é garantir as invariantes, como o cálculo do valor total dos itens,
+    // que precisam ser baseado nos itens que estão contidos na Delivery.
+    public UUID addItem(String name, int quantity) {
+        Item item = Item.brandNew(name, quantity);
+        items.add(item);
+        this.calculateTotalItems();
+        return item.getId();
+    }
+
+    public void removeItem(UUID itemId) {
+        items.removeIf(item -> item.getId().equals(itemId));
+        this.calculateTotalItems();
+    }
+
+    public void removeItems() {
+        items.clear();
+        this.calculateTotalItems();
+    }
+
+    // Alterando entidades num Aggregator.
+    public void changeItemQuantity(UUID itemId, int quantity) {
+        Item item = getItems().stream().filter(i -> i.getId().equals(itemId))
+                .findFirst().orElseThrow();
+
+        item.setQuantity(quantity);
+        calculateTotalItems();
+    }
+
     public List<Item> getItems() {
-        // funciona como uma visão somente para leitura (read-only view) de uma lista existente,
+        // Funciona como uma visão somente para leitura (read-only view) de uma lista existente,
         // que por sua vez pode ser mutável ou imutável.
         // Ajuda a manter a regra do DDD relacionado ao Aggregate, pois quem tiver acesso a essa lista
         // Não deve conseguir modificar, apenas o Aggregate Root deve conseguir.
         return Collections.unmodifiableList(this.items);
     }
+
+    private void calculateTotalItems() {
+        // Leva em conta a quantidade que tem dentro de cada item e soma.
+        int totalItems = getItems().stream().mapToInt(Item::getQuantity).sum();
+        setTotalItems(totalItems);
+    }
+
 }
