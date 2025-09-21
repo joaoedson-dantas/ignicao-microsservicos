@@ -4,9 +4,8 @@ import lombok.*;
 
 import java.util.UUID;
 
-// Apenas o Aggregate Root pode instânciar um novo item.
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
+@NoArgsConstructor(access = AccessLevel.PACKAGE) // Apenas o Aggregate Root pode instânciar um novo item.
 @Setter(AccessLevel.PRIVATE)
 @Getter
 public class Item {

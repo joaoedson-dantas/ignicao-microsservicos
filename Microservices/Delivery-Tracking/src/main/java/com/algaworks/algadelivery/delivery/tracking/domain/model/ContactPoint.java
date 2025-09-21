@@ -8,8 +8,7 @@ import lombok.Getter;
 
 // Var ser um VO  (Value Object) -> Não precisa de Setter, ele tem que ser instânciado com todos os parâmetros
 // Não deve ter modificações desses parâmetros.
-// Seguindo o DDD -> Ele deve ser comparado utilizando todos os valores disponíveis
-@EqualsAndHashCode
+@EqualsAndHashCode // Seguindo o DDD -> Ele deve ser comparado utilizando todos os valores disponíveis
 @AllArgsConstructor
 @Builder
 @Getter

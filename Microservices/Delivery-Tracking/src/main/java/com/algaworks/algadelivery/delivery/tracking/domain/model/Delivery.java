@@ -1,8 +1,10 @@
 package com.algaworks.algadelivery.delivery.tracking.domain.model;
 
+import com.algaworks.algadelivery.delivery.tracking.domain.exception.DomainException;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -94,10 +96,75 @@ public class Delivery {
         return Collections.unmodifiableList(this.items);
     }
 
+    public void editPreparationDetails(PreparationDetails details) {
+        verifyIfCanBeEdited();
+
+        setSender(details.getSender());
+        setRecipient(details.getRecipient());
+        setDistanceFee(details.getDistanceFee());
+        setCourierPayout(details.getCourierPayout());
+
+        // Regra para calcular o prazo de entrega
+        setExpectedDeliveryAt(OffsetDateTime.now().plus(details.getExpectedDeliveryTime()));
+        setTotalCost(this.getDistanceFee().add(this.getCourierPayout()));
+    }
+
+    public void place() {
+        // Regras de negócio
+        verifyIfCanBePlaced();
+
+        this.setStatus(DeliveryStatus.WAITING_FOR_COURIER);
+        this.setPlacedAt(OffsetDateTime.now());
+    }
+
+    public void pickUp(UUID courierId) {
+        this.setCourierId(courierId);
+        this.setStatus(DeliveryStatus.IN_TRANSIT);
+        this.setAssignedAt(OffsetDateTime.now());
+    }
+
+    public void markAsDelivered() {
+        this.setStatus(DeliveryStatus.DELIVERY);
+        this.setFulfilledAt(OffsetDateTime.now());
+    }
+
     private void calculateTotalItems() {
         // Leva em conta a quantidade que tem dentro de cada item e soma.
         int totalItems = getItems().stream().mapToInt(Item::getQuantity).sum();
         setTotalItems(totalItems);
     }
 
+    private boolean isFilled() {
+        return this.getSender() != null
+                && this.getRecipient() != null
+                && this.totalCost != null;
+    }
+
+    private void verifyIfCanBePlaced() {
+        if (!isFilled()) {
+            throw new DomainException();
+        }
+
+        if (!getStatus().equals(DeliveryStatus.DRAFT)) {
+            throw new DomainException();
+        }
+    }
+
+    private void verifyIfCanBeEdited() {
+        if (!getStatus().equals(DeliveryStatus.DRAFT)) {
+            throw new DomainException();
+        }
+    }
+
+    @Getter
+    @AllArgsConstructor
+    @Builder
+    // Classe servirá apenas para passagem de parâmetro
+    public static class PreparationDetails {
+        private ContactPoint sender;
+        private ContactPoint recipient;
+        private BigDecimal distanceFee;
+        private BigDecimal courierPayout;
+        private Duration expectedDeliveryTime;
+    }
 }
