@@ -80,7 +80,7 @@ public class DeliveryPreparationService {
 
         delivery.editPreparationDetails(preparationDetails);
 
-        // REGRA DO DDD -> Responsabilidade do Agregado instânciar os items
+        // REGRA DO DDD -> Responsabilidade do Agregado instânciar os ‘items’
         for (ItemInput itemInput : input.getItems()) {
             delivery.addItem(itemInput.getName(), itemInput.getQuantity());
         }
