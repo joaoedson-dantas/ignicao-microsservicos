@@ -1,7 +1,6 @@
 package com.algaworks.algadelivery.courier.management.domain.model;
 
 import lombok.*;
-import org.springframework.util.CollectionUtils;
 
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -41,7 +40,33 @@ public class Courier {
         courier.setPhone(phone);
         courier.setFulFilledDeliveriesQuantity(0);
         courier.setFulFilledDeliveriesQuantity(0);
+        courier.setPendingDeliveriesQuantity(0);
 
         return courier;
+    }
+
+    // Atribuindo a entrega para este entregador
+    public void assign(UUID deliveryId) {
+        this.pendingDeliveries.add(
+                AssignedDelivery.pending(deliveryId)
+        );
+
+        // Mantendo umas das invariantes
+        this.setPendingDeliveriesQuantity(
+                getPendingDeliveriesQuantity() + 1
+        );
+    }
+
+    // Completando a entrega
+    public void fulfill(UUID deliveryId) {
+        AssignedDelivery delivery = this.pendingDeliveries.stream()
+                .filter(d -> d.getId().equals(deliveryId))
+                .findFirst()
+                .orElseThrow();
+
+        this.pendingDeliveries.remove(delivery);
+        this.pendingDeliveriesQuantity--;
+        this.fulFilledDeliveriesQuantity++;
+        this.lastFulFilledDeliveryAt = OffsetDateTime.now();
     }
 }

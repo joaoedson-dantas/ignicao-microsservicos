@@ -18,8 +18,10 @@ public class AssignedDelivery {
 
     static AssignedDelivery pending(UUID deliveryID) {
         AssignedDelivery assignedDelivery = new AssignedDelivery();
+
         assignedDelivery.setId(deliveryID);
         assignedDelivery.setAssignedAt(OffsetDateTime.now());
+
         return assignedDelivery;
     }
 }
