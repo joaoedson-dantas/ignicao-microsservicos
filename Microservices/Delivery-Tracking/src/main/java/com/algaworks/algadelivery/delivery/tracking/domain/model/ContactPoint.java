@@ -1,10 +1,8 @@
 package com.algaworks.algadelivery.delivery.tracking.domain.model;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import jakarta.persistence.Embeddable;
+import lombok.*;
 
 // Var ser um VO  (Value Object) -> Não precisa de Setter, ele tem que ser instânciado com todos os parâmetros
 // Não deve ter modificações desses parâmetros.
@@ -12,6 +10,8 @@ import lombok.Getter;
 @AllArgsConstructor
 @Builder
 @Getter
+@Embeddable // propriedades compostas que não são entidades
+@NoArgsConstructor(access = AccessLevel.PACKAGE)
 public class ContactPoint {
     private String zipCode;
     private String street;

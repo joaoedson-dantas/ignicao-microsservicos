@@ -1,5 +1,8 @@
 package com.algaworks.algadelivery.delivery.tracking.domain.model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import lombok.*;
 
 import java.util.UUID;
@@ -8,9 +11,11 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PACKAGE) // Apenas o Aggregate Root pode instânciar um novo item.
 @Setter(AccessLevel.PRIVATE)
 @Getter
+@Entity
 public class Item {
 
     @EqualsAndHashCode.Include
+    @Id
     private UUID id;
 
     private String name;
@@ -18,11 +23,16 @@ public class Item {
     @Setter(AccessLevel.PACKAGE)
     private Integer quantity;
 
-    static Item brandNew(String name, Integer quantity) {
+    @ManyToOne(optional = false)
+    @Getter(AccessLevel.PRIVATE)
+    private Delivery delivery;
+
+    static Item brandNew(String name, Integer quantity, Delivery delivery) {
         Item item = new Item();
         item.setId(UUID.randomUUID());
         item.setName(name);
         item.setQuantity(quantity);
+        item.setDelivery(delivery);
         return item;
     }
 }
