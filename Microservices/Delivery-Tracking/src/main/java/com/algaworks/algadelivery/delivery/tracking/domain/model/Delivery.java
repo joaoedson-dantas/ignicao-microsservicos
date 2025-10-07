@@ -1,6 +1,6 @@
 package com.algaworks.algadelivery.delivery.tracking.domain.model;
 
-import com.algaworks.algadelivery.delivery.tracking.domain.event.DeliveryFulfiledEvent;
+import com.algaworks.algadelivery.delivery.tracking.domain.event.DeliveryFulfilledEvent;
 import com.algaworks.algadelivery.delivery.tracking.domain.event.DeliveryPickUpEvent;
 import com.algaworks.algadelivery.delivery.tracking.domain.event.DeliveryPlacedEvent;
 import com.algaworks.algadelivery.delivery.tracking.domain.exception.DomainException;
@@ -166,7 +166,7 @@ public class Delivery extends AbstractAggregateRoot<Delivery> {
         this.changeStatusTo(DeliveryStatus.DELIVERED);
         this.setFulfilledAt(OffsetDateTime.now());
         super.registerEvent(
-                new DeliveryFulfiledEvent(this.getFulfilledAt(), this.getId())
+                new DeliveryFulfilledEvent(this.getFulfilledAt(), this.getId())
         );
     }
 

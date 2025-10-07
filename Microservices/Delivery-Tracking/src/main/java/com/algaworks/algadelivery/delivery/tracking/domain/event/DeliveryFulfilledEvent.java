@@ -10,7 +10,7 @@ import java.util.UUID;
 @Getter
 @AllArgsConstructor
 @ToString
-public class DeliveryFulfiledEvent {
+public class DeliveryFulfilledEvent {
     private final OffsetDateTime occurredAt;
     private final UUID deliveryId;
 }
