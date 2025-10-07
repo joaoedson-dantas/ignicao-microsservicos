@@ -1,8 +1,12 @@
 package com.algaworks.algadelivery.delivery.tracking.domain.model;
 
+import com.algaworks.algadelivery.delivery.tracking.domain.event.DeliveryFulfiledEvent;
+import com.algaworks.algadelivery.delivery.tracking.domain.event.DeliveryPickUpEvent;
+import com.algaworks.algadelivery.delivery.tracking.domain.event.DeliveryPlacedEvent;
 import com.algaworks.algadelivery.delivery.tracking.domain.exception.DomainException;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.domain.AbstractAggregateRoot;
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -15,11 +19,11 @@ import java.util.UUID;
 // No DDD -> A Entidade deve ter uma identidade única,
 // por conta disso é necessário adicionar EqualsAndHashCode para comparação apenas via identificador (ID ou UUID)
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Setter(AccessLevel.PRIVATE) // todos privados, utilizando dentro de métodos dentro da própria classe.
 @Getter
 @Entity
-public class Delivery {
+public class Delivery extends AbstractAggregateRoot<Delivery> {
 
     @EqualsAndHashCode.Include
     @Id
@@ -143,17 +147,27 @@ public class Delivery {
 
         this.changeStatusTo(DeliveryStatus.WAITING_FOR_COURIER);
         this.setPlacedAt(OffsetDateTime.now());
+        super.registerEvent(
+                new DeliveryPlacedEvent(this.getPlacedAt(), this.getId())
+        );
     }
 
     public void pickUp(UUID courierId) {
         this.setCourierId(courierId);
         this.changeStatusTo(DeliveryStatus.IN_TRANSIT);
         this.setAssignedAt(OffsetDateTime.now());
+
+        super.registerEvent(
+                new DeliveryPickUpEvent(this.getAssignedAt(), this.getId())
+        );
     }
 
     public void markAsDelivered() {
         this.changeStatusTo(DeliveryStatus.DELIVERED);
         this.setFulfilledAt(OffsetDateTime.now());
+        super.registerEvent(
+                new DeliveryFulfiledEvent(this.getFulfilledAt(), this.getId())
+        );
     }
 
     private void calculateTotalItems() {
@@ -207,3 +221,9 @@ public class Delivery {
         private Duration expectedDeliveryTime;
     }
 }
+
+/**
+ *  AbstractAggregateRoot
+ *  Assim que aggregate root for persistido no banco de dados através do repositório, ele lançara esses eventos
+ *
+ */
