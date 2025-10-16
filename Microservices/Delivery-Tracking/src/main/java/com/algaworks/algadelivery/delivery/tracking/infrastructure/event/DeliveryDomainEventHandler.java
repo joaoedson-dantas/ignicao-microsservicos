@@ -8,12 +8,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+import static com.algaworks.algadelivery.delivery.tracking.infrastructure.kafka.KafkaTopicConfig.DELIVERIES_EVENTS_TOPIC_NAME;
+
 @Component
 @Slf4j // log do lombok
 @RequiredArgsConstructor
 public class DeliveryDomainEventHandler {
 
-    public static final String DELIVERIES_EVENTS_TOPIC_NAME = "deliveries.v1.events";
     private final IntegrationEventPublisher integrationEventPublisher;
 
 
